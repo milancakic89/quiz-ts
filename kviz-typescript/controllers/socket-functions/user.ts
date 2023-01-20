@@ -26,7 +26,7 @@ export const getRankingList = async (socket: Socket) =>{
 export const resetDailyPrice = async (socket: Socket, data: EmittedLoggedInData) => {
     const id = data.data._id;
     const user = await User.findById(id);
-    const ticketPrice = [1,1,1,5,1,,1,1,2,1,1,1,3,1,1,1,2,1,1,1,10,1,1,1,3,1,1,1,4,1,1,1,2,1,1,1,4,1,1,1,2,1,1,1,3,1,1];
+    const ticketPrice = [1,1,5,1,,1,1,2,1,,3,1,1,1,2,,1,10,1,1,3,1,,4,1,1,2,1,,4,1,1,1,2,1,1,3,1,1];
     const random = getRandomNumber(ticketPrice.length - 1);
     if (user) {
       const now = Date.now();
@@ -91,7 +91,6 @@ export const updateSettings = async (socket: Socket, data: EmittedLoggedInData) 
         userDoc.avatar_url = avatar;
         userDoc.avatar_border = border;
         userDoc.save();
-        console.log(userDoc)
         return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc})
     }
     return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: false, data: null})
@@ -110,7 +109,6 @@ export const updateSettings = async (socket: Socket, data: EmittedLoggedInData) 
 export const buyItem = async (socket: Socket, data: EmittedLoggedInData) => {
     const user = await User.findById(data.data._id)
     if (user && data.item as ShopItem) {
-        console.log(data.item)
         if (user.tickets >= getShopItemCost(data.item)) {
             if (!user.shop_items.includes(data.item) && !lifeItems.includes(data.item)){
                 user.avatar_border = data.item;

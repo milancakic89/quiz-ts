@@ -15,6 +15,33 @@ const EVENTS = require('../socket-events');
 const Questions = require('../../db_models/question');
 const Users = require('../../db_models/user');
 const DBQUEUE = require('../DB-queue').getDBQueue();
+const checkQuestionQueue = [];
+let generator = function* () {
+    while (checkQuestionQueue.length > 0) {
+        yield checkQuestionQueue[0]();
+    }
+};
+var queGen = generator();
+function handle(yielded) {
+    if (checkQuestionQueue.length > 0 && yielded && yielded.value) {
+        yielded.value.then(() => {
+            checkQuestionQueue.shift();
+            console.log('Saved from generator');
+            return handle(queGen.next());
+        });
+    }
+    else {
+        setTimeout(() => {
+            if (checkQuestionQueue.length > 0) {
+                queGen = generator();
+                console.log('Found in queue');
+                return handle(queGen.next());
+            }
+            return handle(queGen.next());
+        }, 200);
+    }
+}
+handle(queGen.next());
 function getRandomNumber(quantity) {
     var milliseconds = new Date().getMilliseconds();
     return Math.floor(Math.random() * Math.floor(milliseconds * quantity / 1000));
@@ -75,7 +102,6 @@ const generateRoomQuestions = (roomName, amount, usersArr) => __awaiter(void 0, 
 exports.generateRoomQuestions = generateRoomQuestions;
 const getQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
     const id = data.data._id;
-    console.log('reached get');
     const user = yield Users.findById(id);
     user.allready_answered = user.allready_answered || [];
     const category = data.category;
@@ -110,8 +136,6 @@ const getQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function
     let random = getRandomNumber(questionsByOthers.length - 1);
     if (questionsByOthers && questionsByOthers.length) {
         let ques = questionsByOthers[random];
-        console.log(questionsByOthers);
-        console.log(random, questionsByOthers.length);
         if (ques) {
             console.log('got question random');
             let picked = JSON.parse(JSON.stringify(questionsByOthers[random]));
@@ -332,11 +356,11 @@ const checkQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
+                checkQuestionQueue.push(question);
                 return question;
             }
             else {
-                if (userPick === question.correct_text) {
+                if (userPick.toUpperCase() === question.correct_text.toUpperCase()) {
                     correct = true;
                     question.answered_correctly++;
                     category = question.category;
@@ -345,8 +369,8 @@ const checkQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
-                console.log('added to que');
+                // DBQUEUE.addToQueue(question);
+                checkQuestionQueue.push(question);
                 return question;
             }
         }

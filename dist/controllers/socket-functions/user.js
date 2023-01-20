@@ -34,7 +34,7 @@ exports.getRankingList = getRankingList;
 const resetDailyPrice = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
     const id = data.data._id;
     const user = yield User.findById(id);
-    const ticketPrice = [1, 1, 1, 5, 1, , 1, 1, 2, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 10, 1, 1, 1, 3, 1, 1, 1, 4, 1, 1, 1, 2, 1, 1, 1, 4, 1, 1, 1, 2, 1, 1, 1, 3, 1, 1];
+    const ticketPrice = [1, 1, 5, 1, , 1, 1, 2, 1, , 3, 1, 1, 1, 2, , 1, 10, 1, 1, 3, 1, , 4, 1, 1, 2, 1, , 4, 1, 1, 1, 2, 1, 1, 3, 1, 1];
     const random = getRandomNumber(ticketPrice.length - 1);
     if (user) {
         const now = Date.now();
@@ -98,7 +98,6 @@ const updateSettings = (socket, data) => __awaiter(void 0, void 0, void 0, funct
         userDoc.avatar_url = avatar;
         userDoc.avatar_border = border;
         userDoc.save();
-        console.log(userDoc);
         return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc });
     }
     return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: false, data: null });
@@ -116,7 +115,6 @@ exports.removeNotification = removeNotification;
 const buyItem = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield User.findById(data.data._id);
     if (user && data.item) {
-        console.log(data.item);
         if (user.tickets >= (0, exports.getShopItemCost)(data.item)) {
             if (!user.shop_items.includes(data.item) && !lifeItems.includes(data.item)) {
                 user.avatar_border = data.item;

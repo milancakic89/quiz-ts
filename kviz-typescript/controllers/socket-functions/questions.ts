@@ -1,11 +1,44 @@
 import { EmittedLoggedInData, Question, Socket, UserType } from "../../intrfaces/types";
 
-export { }
 const Room = require('../../db_models/rooms');
 const EVENTS = require('../socket-events');
 const Questions = require('../../db_models/question');
 const Users = require('../../db_models/user');
 const DBQUEUE = require('../DB-queue').getDBQueue();
+
+const checkQuestionQueue: any[] = [];
+
+
+
+let generator = function* () {
+    while (checkQuestionQueue.length > 0) {
+        yield checkQuestionQueue[0]();
+    }
+};
+
+var queGen = generator();
+
+function handle(yielded: any) {
+    if (checkQuestionQueue.length > 0 && yielded && yielded.value) {
+        yielded.value.then(() => {
+            checkQuestionQueue.shift();
+            console.log('Saved from generator')
+            return handle(queGen.next())
+        })
+    } else {
+        setTimeout(() => {
+            if (checkQuestionQueue.length > 0) {
+                queGen = generator();
+                console.log('Found in queue')
+                return handle(queGen.next())
+            }
+            return handle(queGen.next())
+        }, 200)
+    }
+}
+
+handle(queGen.next())
+
 
 
 function getRandomNumber(quantity: number) {
@@ -71,7 +104,6 @@ export const generateRoomQuestions = async (roomName: string, amount: number, us
 
 export const getQuestion = async (socket: Socket, data: EmittedLoggedInData) => {
     const id = data.data._id;
-    console.log('reached get')
     const user = await Users.findById(id);
     user.allready_answered = user.allready_answered || [];
     const category = data.category;
@@ -106,8 +138,6 @@ export const getQuestion = async (socket: Socket, data: EmittedLoggedInData) => 
     let random = getRandomNumber(questionsByOthers.length - 1);
     if (questionsByOthers && questionsByOthers.length) {
         let ques = questionsByOthers[random];
-        console.log(questionsByOthers)
-        console.log(random, questionsByOthers.length)
         if(ques){
             console.log('got question random')
             let picked = JSON.parse(JSON.stringify(questionsByOthers[random]));
@@ -331,7 +361,8 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
+                checkQuestionQueue.push(question)
+                
                 return question;
             }else{
                 if (userPick.toUpperCase() === question.correct_text.toUpperCase()) {
@@ -342,8 +373,8 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
-                console.log('added to que')
+                // DBQUEUE.addToQueue(question);
+                checkQuestionQueue.push(question)
                 return question;
             }
 

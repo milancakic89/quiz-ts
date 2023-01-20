@@ -85,7 +85,6 @@ export const joinDBRoom = async (socket: Socket, userAndRoom: EmittedLoggedInDat
         });
         socket.join(`${userAndRoom.user_id}`)
     }
-    console.log(room.created_by)
     if (room && room.allow_enter) {
         const haveUser = room.users.some((user: any) => user.id === null || user.id === userAndRoom.user_id);
         user.room = userAndRoom.roomName;
