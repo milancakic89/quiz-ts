@@ -6,40 +6,6 @@ const Questions = require('../../db_models/question');
 const Users = require('../../db_models/user');
 const DBQUEUE = require('../DB-queue').getDBQueue();
 
-const checkQuestionQueue: any[] = [];
-
-
-
-let generator = function* () {
-    while (checkQuestionQueue.length > 0) {
-        yield checkQuestionQueue[0]();
-    }
-};
-
-var queGen = generator();
-
-function handle(yielded: any) {
-    if (checkQuestionQueue.length > 0 && yielded && yielded.value) {
-        yielded.value.then(() => {
-            checkQuestionQueue.shift();
-            console.log('Saved from generator')
-            return handle(queGen.next())
-        })
-    } else {
-        setTimeout(() => {
-            if (checkQuestionQueue.length > 0) {
-                queGen = generator();
-                console.log('Found in queue')
-                return handle(queGen.next())
-            }
-            return handle(queGen.next())
-        }, 200)
-    }
-}
-
-handle(queGen.next())
-
-
 
 function getRandomNumber(quantity: number) {
     var milliseconds = new Date().getMilliseconds();
@@ -361,7 +327,6 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
                     question.answered_wrong++;
                     category = question.category;
                 }
-                checkQuestionQueue.push(question)
                 
                 return question;
             }else{
@@ -373,8 +338,7 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
                     question.answered_wrong++;
                     category = question.category;
                 }
-                // DBQUEUE.addToQueue(question);
-                checkQuestionQueue.push(question)
+                DBQUEUE.addToQueue(question);
                 return question;
             }
 

@@ -15,33 +15,6 @@ const EVENTS = require('../socket-events');
 const Questions = require('../../db_models/question');
 const Users = require('../../db_models/user');
 const DBQUEUE = require('../DB-queue').getDBQueue();
-const checkQuestionQueue = [];
-let generator = function* () {
-    while (checkQuestionQueue.length > 0) {
-        yield checkQuestionQueue[0]();
-    }
-};
-var queGen = generator();
-function handle(yielded) {
-    if (checkQuestionQueue.length > 0 && yielded && yielded.value) {
-        yielded.value.then(() => {
-            checkQuestionQueue.shift();
-            console.log('Saved from generator');
-            return handle(queGen.next());
-        });
-    }
-    else {
-        setTimeout(() => {
-            if (checkQuestionQueue.length > 0) {
-                queGen = generator();
-                console.log('Found in queue');
-                return handle(queGen.next());
-            }
-            return handle(queGen.next());
-        }, 200);
-    }
-}
-handle(queGen.next());
 function getRandomNumber(quantity) {
     var milliseconds = new Date().getMilliseconds();
     return Math.floor(Math.random() * Math.floor(milliseconds * quantity / 1000));
@@ -356,7 +329,6 @@ const checkQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
                     question.answered_wrong++;
                     category = question.category;
                 }
-                checkQuestionQueue.push(question);
                 return question;
             }
             else {
@@ -369,8 +341,7 @@ const checkQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
                     question.answered_wrong++;
                     category = question.category;
                 }
-                // DBQUEUE.addToQueue(question);
-                checkQuestionQueue.push(question);
+                DBQUEUE.addToQueue(question);
                 return question;
             }
         }
