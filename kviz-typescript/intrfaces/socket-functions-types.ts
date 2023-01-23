@@ -15,7 +15,7 @@ export interface Auth{
     refresh: (socket: Socket, data: EmittedLoggedInData) => {};
     takeDailyPrice: (socket: Socket, data: EmittedLoggedInData) => {};
     activateUser: (req: any, res: any, next: any) => {};
-    sendEmail: (socket: Socket, user: UserType, html: any) => {};
+    sendEmail: (socket: Socket, io: any, user: UserType, html: any) => {};
     resetPassword: (socket: Socket, data: EmittedData) => {};
     resetPasswordConfirmation : (socket: Socket, data: EmittedLoggedInData) => {};
     
@@ -23,7 +23,7 @@ export interface Auth{
 
 export interface FriendRequests{
     inviteFriends: (socket: Socket, data: EmittedLoggedInData) => {};
-    addDBFriend : (socket: Socket, data: EmittedLoggedInData) => {};
+    addDBFriend : (socket: Socket, io: any, data: EmittedLoggedInData) => {};
     acceptDBFriend : (socket: Socket, data: EmittedLoggedInData) => {};
     searchUsers : (socket: Socket, data: EmittedLoggedInData) => {};
     getFriendRequests : (socket: Socket, data: EmittedLoggedInData) => {};

@@ -23,7 +23,7 @@ const inviteFriends = (socket, data) => {
     });
 };
 exports.inviteFriends = inviteFriends;
-const addDBFriend = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
+const addDBFriend = (socket, socketIo, data) => __awaiter(void 0, void 0, void 0, function* () {
     const requested_friend_ID = data.friend_id;
     const my_id = data.user_id;
     const friend = yield Users.findById(requested_friend_ID);
@@ -34,6 +34,7 @@ const addDBFriend = (socket, data) => __awaiter(void 0, void 0, void 0, function
             friend.friendRequests = friend_requests;
             friend.requestNotification = true;
             yield friend.save();
+            socketIo.in(`${requested_friend_ID}`).emit(EVENTS.NEW_FRIEND_REQUEST(), { event: EVENTS.NEW_FRIEND_REQUEST(), success: true });
             return socket.emit(EVENTS.ADD_FRIEND(), { event: EVENTS.ADD_FRIEND(), success: true });
         }
         else {

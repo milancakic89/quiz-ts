@@ -326,6 +326,14 @@ export const INCORRECT_LOGIN_DETAILS = () => 'INCORRECT_LOGIN_DETAILS';
 */
 export const EMAIL_ALLREADY_EXIST = () => 'EMAIL_ALLREADY_EXIST';
 
+
+/**
+* @description Emits new friend request found
+* @common_data_to_send {event: 'NEW_FRIEND_REQUEST', data: null}
+* @returns EVENT STRING
+*/
+export const NEW_FRIEND_REQUEST = () => 'NEW_FRIEND_REQUEST';
+
 /**
 * @description Emits account not yet activated
 * @common_data_to_send {event: 'ACCOUNT_NOT_ACTIVATED', data: null}

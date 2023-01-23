@@ -28,7 +28,7 @@ export const setup = () => {
         })
 
         socket.on(EVENTS.ADD_FRIEND(), (data: EmittedLoggedInData) => {
-            FRIEND_REQUESTS.addDBFriend(socket, data)
+            FRIEND_REQUESTS.addDBFriend(socket, socketIo, data)
         })
 
         socket.on(EVENTS.ACCEPT_FRIEND(), (data: EmittedLoggedInData) => {

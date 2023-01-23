@@ -30,7 +30,7 @@ const setup = () => {
             midleware.socketMiddleware(socket, data, FRIEND_REQUESTS.removeFriend);
         }));
         socket.on(EVENTS.ADD_FRIEND(), (data) => {
-            FRIEND_REQUESTS.addDBFriend(socket, data);
+            FRIEND_REQUESTS.addDBFriend(socket, socketIo, data);
         });
         socket.on(EVENTS.ACCEPT_FRIEND(), (data) => {
             FRIEND_REQUESTS.acceptDBFriend(socket, data);

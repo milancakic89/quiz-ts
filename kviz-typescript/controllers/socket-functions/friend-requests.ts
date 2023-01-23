@@ -16,7 +16,7 @@ export const inviteFriends = (socket: Socket, data: EmittedLoggedInData) => {
 }
 
 
-export const addDBFriend = async (socket: Socket, data: EmittedLoggedInData) => {
+export const addDBFriend = async (socket: Socket, socketIo: any, data: EmittedLoggedInData) => {
     const requested_friend_ID = data.friend_id;
     const my_id = data.user_id;
     const friend = await Users.findById(requested_friend_ID);
@@ -27,6 +27,7 @@ export const addDBFriend = async (socket: Socket, data: EmittedLoggedInData) => 
             friend.friendRequests = friend_requests;
             friend.requestNotification = true;
             await friend.save();
+            socketIo.in(`${requested_friend_ID}`).emit(EVENTS.NEW_FRIEND_REQUEST(), { event: EVENTS.NEW_FRIEND_REQUEST(), success: true })
             return socket.emit(EVENTS.ADD_FRIEND(), { event: EVENTS.ADD_FRIEND(), success: true })
         } else {
             return socket.emit(EVENTS.FRIEND_ALLREADY_REQUESTED(), { event: EVENTS.FRIEND_ALLREADY_REQUESTED() })
