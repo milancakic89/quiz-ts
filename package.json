@@ -5,14 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "nodemon app.js",
-<<<<<<< HEAD
     "builded": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 nodemon app.js",
     "local": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 nodemon app.js",
-=======
-    "prod": "node app.js",
-    "builded": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=3000 node app.js",
-    "local": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=3000 node app.js",
->>>>>>> 6f24ac738625d8e4de491f845318507137976b3e
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
