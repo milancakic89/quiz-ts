@@ -71,7 +71,7 @@ export interface Tournament{
     setIOReady: () => {};
     getQueue: () => {};
     getIO: () => {};
-    generateMatchQuestions: (roomName: string, options: any) => {};
+    generateMatchQuestion: (roomName: string, options: any) => {};
     startDBTournament: (socket: Socket, data: EmittedLoggedInData) => {};
     startDBTournamentQuestion: (data: EmittedLoggedInData) => {};
     checkMatchQuestion: (socket: Socket, data: EmittedLoggedInData) => {};

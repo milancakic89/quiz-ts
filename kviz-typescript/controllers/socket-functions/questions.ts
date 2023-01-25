@@ -20,50 +20,11 @@ export const getDBQuestion = async (socket: Socket, data: EmittedLoggedInData) =
             fn: `getDBQuestion()|requestedRoom:${data.roomName}|respondedRoom: ${tournamentRoom.room_id}|allow: ${tournamentRoom.allow_enter}`
         });
     }
-    if (!tournamentRoom.questions[data.questionIndex]){
+    if (tournamentRoom.question_counter < 1){
         socket.emit(EVENTS.TOURNAMENT_FINISHED(), { event: EVENTS.TOURNAMENT_FINISHED(), data: null })
     }
-    socket.emit(EVENTS.GET_ROOM_QUESTION(), { event: EVENTS.GET_ROOM_QUESTION(), question: tournamentRoom.questions[data.questionIndex] })
+    socket.emit(EVENTS.GET_ROOM_QUESTION(), { event: EVENTS.GET_ROOM_QUESTION(), question: tournamentRoom.current_question })
     return true
-}
-
-export const generateRoomQuestions = async (roomName: string, amount: number, usersArr: any[]) => {
-    const tournamentRoom = await Room.findOne({ room_id: roomName });
-    const amountOfQuestions = amount;
-
-    const questions: Question[] = await Questions.find({ status: 'ODOBRENO' });
-    const room_questions: Question[] = [];
-
-    async function generateQuestions() {
-        return new Promise((resolve, reject) => {
-            function generate() {
-                if (room_questions.length <= amountOfQuestions) {
-                    setTimeout(() => {
-                        let filtered = questions.filter(quest => {
-                            if (room_questions.some(q => q._id === quest._id)) {
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        })
-                        let random = getRandomNumber(filtered.length);
-                        let question = filtered[random];
-                        room_questions.push(question);
-                        generate();
-                    }, Math.round(Math.random()) * 10)
-
-                } else {
-                    resolve(true)
-                }
-            }
-            generate()
-        })
-
-    }
-    await generateQuestions();
-    tournamentRoom.questions = room_questions;
-    tournamentRoom.users = usersArr;
-    await tournamentRoom.save();
 }
 
 
@@ -105,7 +66,6 @@ export const getQuestion = async (socket: Socket, data: EmittedLoggedInData) => 
     if (questionsByOthers && questionsByOthers.length) {
         let ques = questionsByOthers[random];
         if(ques){
-            console.log('got question random')
             let picked = JSON.parse(JSON.stringify(questionsByOthers[random]));
             user.allready_answered.push(picked._id)
             await user.save();
@@ -208,7 +168,7 @@ export const addQuestion = async (socket: Socket, data: EmittedLoggedInData) => 
         status: 'NA CEKANJU'
     });
 
-    DBQUEUE.addToQueue(question)
+    await question.save()
     const userDoc: UserType = await Users.findById(data.data._id.toString());
     if (userDoc) {
         const userCat = userDoc.categories.some(cat => cat.category === category);
@@ -256,7 +216,7 @@ export const addWordQuestion = async (socket: Socket, data: EmittedLoggedInData)
         })
         return words;
     }
-    DBQUEUE.addToQueue(question)
+    await question.save();
     
     const userDoc: UserType = await Users.findById(data.data._id.toString());
     if (userDoc) {
@@ -338,7 +298,7 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
+                question.save();;
                 return question;
             }
 
@@ -400,17 +360,5 @@ export const reduceLives = async (socket: Socket, data: EmittedLoggedInData) => 
     })
     .then((saved: UserType) =>{
         return socket.emit(EVENTS.REDUCE_LIVES(), {event: EVENTS.REDUCE_LIVES(), data: saved})
-    })
-}
-
-
-export const resetQuestions = async () =>{
-    const questions: Question[] = await Questions.find();
-    questions.forEach(question => {
-        question.answered_correctly = 0;
-        question.question_difficulty = 1;
-        question.answered_wrong = 0;
-        question.question_picked = 0;
-        DBQUEUE.addToQueue(question);
     })
 }

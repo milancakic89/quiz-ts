@@ -16,6 +16,7 @@ class DBQueue {
         this._queueList = [];
         this._disabled = false;
         this.inited = true;
+        this.counter = 0;
     }
     addToQueue(obj) {
         this._queueList.push(obj);
@@ -37,9 +38,9 @@ class DBQueue {
                 this._disabled = false;
                 return setTimeout(() => this.checkNewestQueue(), 500);
             }
-            const { success, error } = yield this.saveQueue(this._queueList[0]);
+            const { success, error } = yield this.saveQueue(this._queueList[this.counter]);
             if (success) {
-                this._queueList.shift();
+                this.counter++;
                 setTimeout(() => {
                     this.startSaving();
                 }, 20);

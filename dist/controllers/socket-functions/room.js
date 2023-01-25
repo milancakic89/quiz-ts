@@ -41,11 +41,14 @@ const cleanRooms = () => __awaiter(void 0, void 0, void 0, function* () {
 exports.cleanRooms = cleanRooms;
 const createMatchRoom = (room, users) => __awaiter(void 0, void 0, void 0, function* () {
     const response = { success: false };
+    const question = yield TOURNAMENT.generateNewRandomQuestion();
     const newRoom = new Room({
         room_id: room,
         users: users,
         allow_enter: true,
-        total_questions: 0
+        current_question: question,
+        question_counter: 15,
+        total_questions: 15
     });
     const result = yield newRoom.save();
     if (result) {

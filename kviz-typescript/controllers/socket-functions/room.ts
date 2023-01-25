@@ -34,11 +34,15 @@ export const cleanRooms = async () => {
 
 export const createMatchRoom = async (room: string, users: any[]) => {
     const response = { success: false }
+    const question  = await TOURNAMENT.generateNewRandomQuestion();
     const newRoom = new Room({
         room_id: room,
         users: users,
         allow_enter: true,
-        total_questions: 0
+        current_question: question,
+        question_counter: 15,
+        total_questions: 15
+
     })
     const result = await newRoom.save();
     if (result) {

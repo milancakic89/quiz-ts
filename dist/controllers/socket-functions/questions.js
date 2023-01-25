@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetQuestions = exports.reduceLives = exports.quizResults = exports.checkQuestion = exports.deleteQuestion = exports.addWordQuestion = exports.addQuestion = exports.getAllQuestions = exports.updateQuestionText = exports.unpublishQuestion = exports.publishQuestion = exports.loadQuestion = exports.getQuestion = exports.generateRoomQuestions = exports.getDBQuestion = void 0;
+exports.reduceLives = exports.quizResults = exports.checkQuestion = exports.deleteQuestion = exports.addWordQuestion = exports.addQuestion = exports.getAllQuestions = exports.updateQuestionText = exports.unpublishQuestion = exports.publishQuestion = exports.loadQuestion = exports.getQuestion = exports.getDBQuestion = void 0;
 const Room = require('../../db_models/rooms');
 const EVENTS = require('../socket-events');
 const Questions = require('../../db_models/question');
@@ -27,52 +27,13 @@ const getDBQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
             fn: `getDBQuestion()|requestedRoom:${data.roomName}|respondedRoom: ${tournamentRoom.room_id}|allow: ${tournamentRoom.allow_enter}`
         });
     }
-    if (!tournamentRoom.questions[data.questionIndex]) {
+    if (tournamentRoom.question_counter < 1) {
         socket.emit(EVENTS.TOURNAMENT_FINISHED(), { event: EVENTS.TOURNAMENT_FINISHED(), data: null });
     }
-    socket.emit(EVENTS.GET_ROOM_QUESTION(), { event: EVENTS.GET_ROOM_QUESTION(), question: tournamentRoom.questions[data.questionIndex] });
+    socket.emit(EVENTS.GET_ROOM_QUESTION(), { event: EVENTS.GET_ROOM_QUESTION(), question: tournamentRoom.current_question });
     return true;
 });
 exports.getDBQuestion = getDBQuestion;
-const generateRoomQuestions = (roomName, amount, usersArr) => __awaiter(void 0, void 0, void 0, function* () {
-    const tournamentRoom = yield Room.findOne({ room_id: roomName });
-    const amountOfQuestions = amount;
-    const questions = yield Questions.find({ status: 'ODOBRENO' });
-    const room_questions = [];
-    function generateQuestions() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                function generate() {
-                    if (room_questions.length <= amountOfQuestions) {
-                        setTimeout(() => {
-                            let filtered = questions.filter(quest => {
-                                if (room_questions.some(q => q._id === quest._id)) {
-                                    return false;
-                                }
-                                else {
-                                    return true;
-                                }
-                            });
-                            let random = getRandomNumber(filtered.length);
-                            let question = filtered[random];
-                            room_questions.push(question);
-                            generate();
-                        }, Math.round(Math.random()) * 10);
-                    }
-                    else {
-                        resolve(true);
-                    }
-                }
-                generate();
-            });
-        });
-    }
-    yield generateQuestions();
-    tournamentRoom.questions = room_questions;
-    tournamentRoom.users = usersArr;
-    yield tournamentRoom.save();
-});
-exports.generateRoomQuestions = generateRoomQuestions;
 const getQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
     const id = data.data._id;
     const user = yield Users.findById(id);
@@ -110,7 +71,6 @@ const getQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function
     if (questionsByOthers && questionsByOthers.length) {
         let ques = questionsByOthers[random];
         if (ques) {
-            console.log('got question random');
             let picked = JSON.parse(JSON.stringify(questionsByOthers[random]));
             user.allready_answered.push(picked._id);
             yield user.save();
@@ -213,7 +173,7 @@ const addQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function
         type: type,
         status: 'NA CEKANJU'
     });
-    DBQUEUE.addToQueue(question);
+    yield question.save();
     const userDoc = yield Users.findById(data.data._id.toString());
     if (userDoc) {
         const userCat = userDoc.categories.some(cat => cat.category === category);
@@ -258,7 +218,7 @@ const addWordQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, func
         });
         return words;
     }
-    DBQUEUE.addToQueue(question);
+    yield question.save();
     const userDoc = yield Users.findById(data.data._id.toString());
     if (userDoc) {
         const userCat = userDoc.categories.some(cat => cat.category === category);
@@ -341,7 +301,8 @@ const checkQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, functi
                     question.answered_wrong++;
                     category = question.category;
                 }
-                DBQUEUE.addToQueue(question);
+                question.save();
+                ;
                 return question;
             }
         }
@@ -404,14 +365,3 @@ const reduceLives = (socket, data) => __awaiter(void 0, void 0, void 0, function
     });
 });
 exports.reduceLives = reduceLives;
-const resetQuestions = () => __awaiter(void 0, void 0, void 0, function* () {
-    const questions = yield Questions.find();
-    questions.forEach(question => {
-        question.answered_correctly = 0;
-        question.question_difficulty = 1;
-        question.answered_wrong = 0;
-        question.question_picked = 0;
-        DBQUEUE.addToQueue(question);
-    });
-});
-exports.resetQuestions = resetQuestions;

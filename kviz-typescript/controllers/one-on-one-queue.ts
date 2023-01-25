@@ -98,9 +98,7 @@ class PrivateQueueManager{
     async startMatch(roomName: string, user1: any, user2: any){
         const { success } = await ROOM.createMatchRoom(roomName, [user1, user2]);
         if(!success){return;}
-
-        const { questions } = await TOURNAMENT.generateMatchQuestions(roomName, {amountOfQuestions: 15});
-        if(!questions){return;}
+        console.log('emit to users')
         this.io.in(roomName).emit(EVENTS.BOTH_ACCEPTED(), { event: EVENTS.BOTH_ACCEPTED(), data: true });
     }
 

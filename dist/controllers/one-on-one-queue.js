@@ -93,10 +93,7 @@ class PrivateQueueManager {
             if (!success) {
                 return;
             }
-            const { questions } = yield TOURNAMENT.generateMatchQuestions(roomName, { amountOfQuestions: 15 });
-            if (!questions) {
-                return;
-            }
+            console.log('emit to users');
             this.io.in(roomName).emit(EVENTS.BOTH_ACCEPTED(), { event: EVENTS.BOTH_ACCEPTED(), data: true });
         });
     }

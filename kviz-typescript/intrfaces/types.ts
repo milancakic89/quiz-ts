@@ -56,6 +56,7 @@ export interface Question{
     imageUrl: string;
     status: Status,
     answers: any[],
+    save?: any;
 }
 
 export interface Socket{

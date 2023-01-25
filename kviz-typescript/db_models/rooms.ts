@@ -14,6 +14,7 @@ const room = new Schema({
     ],
     started: {type: Boolean, required: true, default: false},
     total_questions: {type: Number, required: true, default: 0},
+    question_counter: {type: Number, required: true, default: 0},
     allow_enter: { type: Boolean, required: true, default: true },
     created_by: String
 });
