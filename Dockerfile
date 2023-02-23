@@ -10,5 +10,4 @@ COPY ./dist .
 
 EXPOSE 3000
 
-
 CMD ["npm", "run", "builded"]

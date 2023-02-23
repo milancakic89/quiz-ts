@@ -58,26 +58,24 @@ const authMidleware = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.authMidleware = authMidleware;
 const socketMiddleware = (socket, data, fn) => {
     const authHeader = data.Authorization;
-    if (authHeader) {
-        const token = authHeader;
-        let decodedToken;
-        try {
-            decodedToken = jwt.verify(token, process.env.SIGNING_SECRET);
-        }
-        catch (e) {
-            socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() });
-            return null;
-        }
-        if (!decodedToken) {
-            socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() });
-            return null;
-        }
-        data.data = decodedToken.user;
-        return fn(socket, data);
-    }
-    else {
+    if (!authHeader) {
         socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() });
         return null;
     }
+    const token = authHeader;
+    let decodedToken;
+    try {
+        decodedToken = jwt.verify(token, process.env.SIGNING_SECRET);
+    }
+    catch (e) {
+        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() });
+        return null;
+    }
+    if (!decodedToken) {
+        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() });
+        return null;
+    }
+    data.data = decodedToken.user;
+    return fn(socket, data);
 };
 exports.socketMiddleware = socketMiddleware;

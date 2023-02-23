@@ -51,25 +51,23 @@ export const authMidleware = async (req: any, res:any, next: any) =>{
 
 export const socketMiddleware = (socket: Socket, data: EmittedData, fn: any): Fn | null =>{
     const authHeader = data.Authorization;
-    if (authHeader) {
-        const token = authHeader;
-        let decodedToken;
-        try {
-            decodedToken = jwt.verify(token, process.env.SIGNING_SECRET)
-        }
-        catch (e) {
-            socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })
-            return null;
-        }
-        if (!decodedToken) {
-            socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })
-            return null;
-        }
-        data.data = decodedToken.user;
-        return fn(socket, data)
-
-    } else {
-        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED()})
+    if (!authHeader) {
+        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })
         return null;
     }
+    const token = authHeader;
+    let decodedToken;
+    try {
+        decodedToken = jwt.verify(token, process.env.SIGNING_SECRET)
+    }
+    catch (e) {
+        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })
+        return null;
+    }
+    if (!decodedToken) {
+        socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })
+        return null;
+    }
+    data.data = decodedToken.user;
+    return fn(socket, data)
 }
