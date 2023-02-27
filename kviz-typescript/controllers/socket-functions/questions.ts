@@ -270,10 +270,12 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
     const questionID = data.question_id;
     const isWordQuestion = data.isWord;
     let correct = false;
+    let correctLetter = '';
     const user: UserType = await Users.findById(data.data._id);
     let category = '';
     Questions.findById(questionID).then((question: Question) =>{
         if (question){
+            correctLetter = question.correct_letter
             let timesPicked = question.question_picked + 1;
             let difficulty = (question.answered_correctly / timesPicked) * 100;
             question.question_difficulty = difficulty;
@@ -326,7 +328,7 @@ export const checkQuestion = async (socket: Socket, data: EmittedLoggedInData) =
         }
     })
     .then((saved: UserType) =>{
-        return socket.emit(EVENTS.CHECK_PRACTICE_QUESTION(), { event: EVENTS.CHECK_PRACTICE_QUESTION(), data: correct})
+        return socket.emit(EVENTS.CHECK_PRACTICE_QUESTION(), { event: EVENTS.CHECK_PRACTICE_QUESTION(), data: {correct, correctLetter}})
     })
 }
 
