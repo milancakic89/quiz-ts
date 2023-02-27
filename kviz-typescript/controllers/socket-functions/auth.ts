@@ -201,7 +201,7 @@ function sendEmail(socket: Socket, user: UserType, html: any){
         case 'register':
             htmlMessage = `
             <h1>Registracija uspesna</h1>
-            <p>Kliknite <a href="https://kviz-znanja.herokuapp.com/activate/${user.activation_token}">OVDE</a> da aktivirate nalog</p>
+            <p>Kliknite <a href="https://kvizcina.herokuapp.com/activate/${user.activation_token}">OVDE</a> da aktivirate nalog</p>
         `;
             subject = 'AKTIVACIJA NALOGA';
 
