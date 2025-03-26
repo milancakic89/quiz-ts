@@ -98,7 +98,6 @@ const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 const autoLogin = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('autologin');
     const email = data.data.email;
     const user = yield User.findOne({ email: email });
     if (!user || !user.account_activated) {

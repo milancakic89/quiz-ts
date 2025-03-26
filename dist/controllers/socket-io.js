@@ -65,9 +65,6 @@ const setupListeners = () => {
     DB.init();
     console.log('setup listeners');
     socketIo.on('connection', (socket) => {
-        // socketIo.onAny((event: any, ...args: any) => {
-        //     console.log(`[RECEIVED] Event: ${event}`, args);
-        // });
         COUNTER.increaseOnlineUsers();
         socket.emit(EVENTS.AUTOLOGIN_AVAILABLE(), { event: EVENTS.AUTOLOGIN_AVAILABLE(), data: null });
         socket.on('disconnect', (data) => {
@@ -81,7 +78,6 @@ const setupListeners = () => {
             saveSocket(socket, data);
         });
         socket.on(EVENTS.LOGIN(), (data) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log(data);
             AUTH.login(socket, data);
         }));
         socket.on(EVENTS.REGISTER(), (data) => __awaiter(void 0, void 0, void 0, function* () {
