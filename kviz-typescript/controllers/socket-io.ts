@@ -63,9 +63,15 @@ export const setupListeners = () =>{
     COUNTER.setupCounter();
     DB.init();
 
+    console.log('setup listeners')
+
+
+
     socketIo.on('connection', (socket: Socket) =>{
-            COUNTER.increaseOnlineUsers();
-        socket.emit(EVENTS.AUTOLOGIN_AVAILABLE(), { event: EVENTS.AUTOLOGIN_AVAILABLE(), data: null })
+
+        COUNTER.increaseOnlineUsers();
+        socket.emit(EVENTS.AUTOLOGIN_AVAILABLE(), { event: EVENTS.AUTOLOGIN_AVAILABLE(), data: null });
+
 
         socket.on('disconnect', (data: EmittedData) => {
             COUNTER.increaseOnlineUsers()

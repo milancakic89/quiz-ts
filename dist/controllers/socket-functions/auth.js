@@ -53,12 +53,18 @@ exports.signUp = signUp;
 const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
     const email = data.email;
     const password = data.password;
+    if (!email || !password) {
+        return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
+    }
     const userDoc = yield User.findOne({ email: email });
     if (!userDoc) {
         return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
     }
     if (userDoc && !userDoc.account_activated) {
         return socket.emit(EVENTS.ACCOUNT_NOT_ACTIVATED(), { event: EVENTS.ACCOUNT_NOT_ACTIVATED(), data: null });
+    }
+    if (!userDoc.password) {
+        return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
     }
     bcrypt.compare(password, userDoc.password).then((doMatch) => __awaiter(void 0, void 0, void 0, function* () {
         if (doMatch) {
@@ -69,16 +75,21 @@ const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
                 roles: userDoc.roles
             };
             const token = jwt.sign({ user: dataToSign }, process.env.SIGNING_SECRET, { expiresIn: '24h' });
-            const oneOnOne = yield oneOnOneRoom.findOne({ room_id: '1on1' });
-            let users = oneOnOne.users || [];
-            users = users.filter(id => id !== userDoc._id);
-            oneOnOne.users = users;
-            yield oneOnOne.save();
+            try {
+                const oneOnOne = yield oneOnOneRoom.findOne({ room_id: '1on1' });
+                let users = oneOnOne.users || [];
+                users = users.filter(id => id !== userDoc._id);
+                oneOnOne.users = users;
+                yield oneOnOne.save();
+            }
+            catch (e) {
+                console.log('error in one on one bcrypt');
+            }
             const data = {
                 data: userDoc,
                 token: token
             };
-            return socket.emit(EVENTS.LOGIN(), { event: EVENTS.LOGIN(), data: data });
+            return socket.emit(EVENTS.LOGIN(), { event: EVENTS.LOGIN(), data: data.data });
         }
         else {
             return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
@@ -87,6 +98,7 @@ const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 const autoLogin = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('autologin');
     const email = data.data.email;
     const user = yield User.findOne({ email: email });
     if (!user || !user.account_activated) {

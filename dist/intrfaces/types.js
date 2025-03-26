@@ -15,7 +15,7 @@ var ShopItem;
     ShopItem["LIFE_X_1"] = "LIFE_X_1";
     ShopItem["LIFE_X_2"] = "LIFE_X_2";
     ShopItem["LIFE_X_3"] = "LIFE_X_3";
-})(ShopItem = exports.ShopItem || (exports.ShopItem = {}));
+})(ShopItem || (exports.ShopItem = ShopItem = {}));
 var ShopItemPrice;
 (function (ShopItemPrice) {
     //BORDERS
@@ -30,4 +30,4 @@ var ShopItemPrice;
     ShopItemPrice[ShopItemPrice["LIFE_X_1"] = 18] = "LIFE_X_1";
     ShopItemPrice[ShopItemPrice["LIFE_X_2"] = 30] = "LIFE_X_2";
     ShopItemPrice[ShopItemPrice["LIFE_X_3"] = 40] = "LIFE_X_3";
-})(ShopItemPrice = exports.ShopItemPrice || (exports.ShopItemPrice = {}));
+})(ShopItemPrice || (exports.ShopItemPrice = ShopItemPrice = {}));
