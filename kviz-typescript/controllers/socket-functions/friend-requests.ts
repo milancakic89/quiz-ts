@@ -44,8 +44,9 @@ export const addDBFriend = async (socket: Socket, socketIo: any, data: EmittedLo
 export const acceptDBFriend = async (socket: Socket, data: EmittedLoggedInData) => {
     const requested_friend_ID: string = data.friend_id;
     const my_id: string = data.user_id;
-    const friend: UserType = await Users.findById(requested_friend_ID);
-    const me: UserType = await Users.findById(my_id);
+    try{
+        const friend: UserType = await Users.findById(requested_friend_ID);
+        const me: UserType = await Users.findById(my_id);
 
     if (friend && me) {
         const my_friend_requests = me.friendRequests.filter(req_id => req_id !== requested_friend_ID);
@@ -80,15 +81,21 @@ export const acceptDBFriend = async (socket: Socket, data: EmittedLoggedInData) 
     } else {
         return socket.emit(EVENTS.ACCEPT_FRIEND(), { event: EVENTS.ACCEPT_FRIEND(), success: false })
     }
+    }catch(e){
+        console.log(e)
+    }
+    
 }
 
 export const searchUsers = async (socket: Socket, data: EmittedLoggedInData) =>{
-    const filter = data.query.toUpperCase();
+    try{
+        const filter = data.query ? data.query.toUpperCase() : '';
     let allUsers: UserType[];
     allUsers = await Users.find();
     if(!allUsers){
         return socket.emit(EVENTS.DATABASE_CONNECTION_ERROR(), { event: EVENTS.DATABASE_CONNECTION_ERROR(), data: null})
     }
+
     const users = allUsers.filter(user =>{
             if(user.name.toUpperCase().includes(filter)){
                 return true;
@@ -111,6 +118,10 @@ export const searchUsers = async (socket: Socket, data: EmittedLoggedInData) =>{
             }
     })
     return socket.emit(EVENTS.GET_ALL_USERS(), {event: EVENTS.GET_ALL_USERS(), data: mapped})
+    }catch(e){
+        console.log(e)
+    }
+    
 
 }
 
@@ -157,22 +168,27 @@ export const getFriendList = async (socket: Socket, data: EmittedLoggedInData) =
 }
 
 export const removeFriend = async (socket: Socket, data: EmittedLoggedInData) => {
-    const my_id: string = data.data._id;
-    const remove_id: string = data.remove_id;
-    if(my_id === remove_id){
+    try{
+        const my_id: string = data.data._id;
+        const remove_id: string = data.remove_id;
+        if(my_id === remove_id){
+            const me: UserType = await Users.findById(my_id);
+            me.friends = me.friends.filter(friend_id => friend_id !== remove_id)
+            await me.save();
+            socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends})
+        }
         const me: UserType = await Users.findById(my_id);
+        const friend: UserType = await Users.findById(remove_id);
+    
         me.friends = me.friends.filter(friend_id => friend_id !== remove_id)
+        friend.friends = friend.friends.filter(friend_id => friend_id !== my_id);
+    
         await me.save();
-        socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends})
+        await friend.save();
+        socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends })
+    }catch(e){
+        console.log('e')
     }
-    const me: UserType = await Users.findById(my_id);
-    const friend: UserType = await Users.findById(remove_id);
 
-    me.friends = me.friends.filter(friend_id => friend_id !== remove_id)
-    friend.friends = friend.friends.filter(friend_id => friend_id !== my_id);
-
-    await me.save();
-    await friend.save();
-    socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends })
 
 }

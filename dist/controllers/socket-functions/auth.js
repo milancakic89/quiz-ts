@@ -89,7 +89,7 @@ const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
                 data: userDoc,
                 token: token
             };
-            return socket.emit(EVENTS.LOGIN(), { event: EVENTS.LOGIN(), data: data.data });
+            return socket.emit(EVENTS.LOGIN(), { event: EVENTS.LOGIN(), data: data.data, token: data.token });
         }
         else {
             return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
@@ -312,7 +312,6 @@ const resetPasswordConfirmation = (socket, data) => __awaiter(void 0, void 0, vo
         return socket.emit(EVENTS.EMAIL_NOT_EXIST(), { event: EVENTS.EMAIL_NOT_EXIST(), data: null });
     }
     if (!user.reset_password_token) {
-        console.log(user.reset_password_token);
         return socket.emit(EVENTS.EMAIL_NOT_EXIST(), { event: EVENTS.EMAIL_NOT_EXIST(), data: null });
     }
     if (user.reset_password_token.toUpperCase() !== data.data.code.toUpperCase()) {

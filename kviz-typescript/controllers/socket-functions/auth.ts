@@ -85,7 +85,7 @@ export const login = async (socket: Socket, data: EmittedData) => {
                     data: userDoc,
                     token: token
                 }
-                return socket.emit(EVENTS.LOGIN(), {event: EVENTS.LOGIN(), data: data.data})
+                return socket.emit(EVENTS.LOGIN(), {event: EVENTS.LOGIN(), data: data.data, token: data.token})
 
             } else {
                 return socket.emit(EVENTS.INCORRECT_LOGIN_DETAILS(), { event: EVENTS.INCORRECT_LOGIN_DETAILS(), data: null });
@@ -322,7 +322,6 @@ export const resetPasswordConfirmation = async (socket: Socket, data: EmittedLog
         return socket.emit(EVENTS.EMAIL_NOT_EXIST(), {event:EVENTS.EMAIL_NOT_EXIST(),  data: null })
     }
     if (!user.reset_password_token){
-        console.log(user.reset_password_token)
         return socket.emit(EVENTS.EMAIL_NOT_EXIST(), {event:EVENTS.EMAIL_NOT_EXIST(),  data: null })
     }
     if (user.reset_password_token.toUpperCase() !== data.data.code.toUpperCase()){
