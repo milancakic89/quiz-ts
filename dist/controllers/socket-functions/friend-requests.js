@@ -186,7 +186,7 @@ const removeFriend = (socket, data) => __awaiter(void 0, void 0, void 0, functio
         socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends });
     }
     catch (e) {
-        console.log('e');
+        console.log(e);
     }
 });
 exports.removeFriend = removeFriend;

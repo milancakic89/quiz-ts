@@ -23,7 +23,7 @@ export class DBQueue{
             this._disabled = true;
             this.startSaving();
         }else{
-            console.log('queue cleared')
+            console.log('')
         }
     }
 
@@ -74,6 +74,5 @@ export const getDBQueue = () => {
 
 export const init = () =>{
     DBQueueRef = new DBQueue();
-    console.log('inited')
 }
 

@@ -30,11 +30,10 @@ const saveDBSocket = (socket, data) => __awaiter(void 0, void 0, void 0, functio
         user.online = true;
         socket.join(user._id.toString());
         yield user.save();
-        console.log('USER CONNECTED');
         return IO.emit(EVENTS.USER_CONNECTED(), { event: EVENTS.USER_CONNECTED(), socket_id: socket.id, user_id: data.user_id });
     }
     else {
-        console.log('socket not saved');
+        console.log('');
     }
 });
 const disconectDBSocket = (io, socket) => __awaiter(void 0, void 0, void 0, function* () {
@@ -64,7 +63,6 @@ const setupListeners = () => {
     userListeners.setup();
     COUNTER.setupCounter();
     DB.init();
-    console.log('setup listeners');
     socketIo.on('connection', (socket) => {
         COUNTER.increaseOnlineUsers();
         socket.emit(EVENTS.AUTOLOGIN_AVAILABLE(), { event: EVENTS.AUTOLOGIN_AVAILABLE(), data: null });

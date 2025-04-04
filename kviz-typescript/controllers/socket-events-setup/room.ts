@@ -23,7 +23,7 @@ export const setup = () => {
         });
 
         socket.on(EVENTS.CREATE_ROOM(), (data: EmittedLoggedInData) => {
-            ROOMS.createRoom(socket, data);
+            midleware.socketMiddleware(socket, data, ROOMS.createRoom)
         })
 
         socket.on(EVENTS.JOIN_ROOM(), (data: EmittedLoggedInData) => {

@@ -67,25 +67,6 @@ class PrivateQueueManager {
         this.io.emit(EVENTS.TRACK_QUEUE_MANAGER(), { event: EVENTS.TRACK_QUEUE_MANAGER(), data: { queue: this.queue, playing: this.playing } });
         return this;
     }
-    // debounceBot(){
-    //     if (this.debounceBotUserTimeot){
-    //         clearTimeout(this.debounceBotUserTimeot);
-    //         return;
-    //     }
-    //     this.debounceBotUserTimeot = setTimeout(() =>{
-    //         this.addToQueue({
-    //             _id: 'someBot',
-    //             name: 'Some bot name',
-    //             socket: 'socket.id',
-    //             mainScore: 0,
-    //             score: 0,
-    //             blocked: [],
-    //             gameAccepted: true,
-    //             playing: false,
-    //             avatar_url: ''
-    //         })
-    //     }, 10000);
-    // }
     generateMatches() {
         let counter = 0;
         while (counter < this.queue.length - 1) {
@@ -113,7 +94,6 @@ class PrivateQueueManager {
             if (!success) {
                 return;
             }
-            console.log('emit to users');
             this.io.in(roomName).emit(EVENTS.BOTH_ACCEPTED(), { event: EVENTS.BOTH_ACCEPTED(), data: true });
         });
     }

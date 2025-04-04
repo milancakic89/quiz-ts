@@ -83,7 +83,7 @@ const login = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
                 yield oneOnOne.save();
             }
             catch (e) {
-                console.log('error in one on one bcrypt');
+                console.log('');
             }
             const data = {
                 data: userDoc,

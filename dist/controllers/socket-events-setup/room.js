@@ -17,7 +17,7 @@ const setup = () => {
             midleware.socketMiddleware(socket, data, ROOMS.joinOneOnOne);
         });
         socket.on(EVENTS.CREATE_ROOM(), (data) => {
-            ROOMS.createRoom(socket, data);
+            midleware.socketMiddleware(socket, data, ROOMS.createRoom);
         });
         socket.on(EVENTS.JOIN_ROOM(), (data) => {
             midleware.socketMiddleware(socket, data, ROOMS.joinDBRoom);

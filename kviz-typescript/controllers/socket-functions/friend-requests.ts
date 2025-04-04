@@ -187,7 +187,7 @@ export const removeFriend = async (socket: Socket, data: EmittedLoggedInData) =>
         await friend.save();
         socket.emit(EVENTS.REMOVE_FRIEND(), { event: EVENTS.REMOVE_FRIEND(), data: me.friends })
     }catch(e){
-        console.log('e')
+        console.log(e)
     }
 
 

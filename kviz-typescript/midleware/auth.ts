@@ -58,7 +58,7 @@ export const socketMiddleware = (socket: Socket, data: EmittedData, fn: any): Fn
     const token = authHeader;
     let decodedToken;
     try {
-        decodedToken = jwt.verify(token, process.env.SIGNING_SECRET)
+        decodedToken = jwt.verify(token, process.env.SIGNING_SECRET);
     }
     catch (e) {
         socket.emit(EVENTS.AUTOLOGINFAILED(), { event: EVENTS.AUTOLOGINFAILED() })

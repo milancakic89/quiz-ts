@@ -77,7 +77,7 @@ export const login = async (socket: Socket, data: EmittedData) => {
                     oneOnOne.users = users;
                     await oneOnOne.save();
                 }catch(e){
-                    console.log('error in one on one bcrypt')
+                    console.log('')
                 }
 
                 

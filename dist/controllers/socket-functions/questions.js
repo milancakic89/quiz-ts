@@ -79,7 +79,7 @@ const getQuestion = (socket, data) => __awaiter(void 0, void 0, void 0, function
             socket.emit(EVENTS.GET_QUESTION(), { event: EVENTS.GET_QUESTION(), data: picked });
         }
         else {
-            console.log('no random question');
+            console.log('');
         }
     }
     else {

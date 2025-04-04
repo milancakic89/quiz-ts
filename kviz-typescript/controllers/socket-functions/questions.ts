@@ -73,7 +73,7 @@ export const getQuestion = async (socket: Socket, data: EmittedLoggedInData) => 
             picked.correct_letter = 'Saznaces nakon sto izaberes';
             socket.emit(EVENTS.GET_QUESTION(), { event: EVENTS.GET_QUESTION(), data: picked })
         }else{
-            console.log('no random question')
+            console.log('')
         }
        
     } else {

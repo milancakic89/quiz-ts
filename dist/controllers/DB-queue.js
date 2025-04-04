@@ -29,7 +29,7 @@ class DBQueue {
             this.startSaving();
         }
         else {
-            console.log('queue cleared');
+            console.log('');
         }
     }
     startSaving() {
@@ -80,6 +80,5 @@ const getDBQueue = () => {
 exports.getDBQueue = getDBQueue;
 const init = () => {
     DBQueueRef = new DBQueue();
-    console.log('inited');
 };
 exports.init = init;

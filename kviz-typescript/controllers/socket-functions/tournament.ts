@@ -1,3 +1,4 @@
+import { textSpanContainsPosition } from "typescript";
 import { EmittedLoggedInData, Question, Socket, SocketIO } from "../../intrfaces/types";
 
 export { }
@@ -65,40 +66,47 @@ export const startDBTournament = async (socket: Socket, data: EmittedLoggedInDat
 
 
 export const startDBTournamentQuestion = async (io: SocketIO, data: EmittedLoggedInData) => {
-    const room = await Room.findOne({ room_id: data.roomName })
-    if (!room) {
-        return io.in(`${data.roomName}`).emit(`${EVENTS.ROOM_DONT_EXIST()}`, {
-            event: `${EVENTS.ROOM_DONT_EXIST()}`,
-            fn: 'startDBTournamentQuestion'
-        });
-    }
-    if (room.question_counter < 1) {
-        room.allow_enter = false;
-        await room.save();
-        io.in(`${data.roomName}`).emit(EVENTS.TOURNAMENT_FINISHED(), { event: EVENTS.TOURNAMENT_FINISHED(), users: room.users });
-        if (data && data.match) {
-            const user1 = await Users.findById(room.users[0]._id);
-            const user2 = await Users.findById(room.users[1]._id);
-            user1.score = user1.score + room.users[0].score;
-            user2.score = user2.score + room.users[1].score;
-            await user1.save();
-            await user2.save();
+    try{
+        const room = await Room.findOne({ room_id: data.roomName })
+        if (!room) {
+            return io.in(`${data.roomName}`).emit(`${EVENTS.ROOM_DONT_EXIST()}`, {
+                event: `${EVENTS.ROOM_DONT_EXIST()}`,
+                fn: 'startDBTournamentQuestion'
+            });
         }
-        return;
-    }else{
-        let counter = room.question_counter - 1;
-        room.question_counter = counter;
-        const question = await generateNewRandomQuestion();
-        room.current_question = question;
-        await room.save();
-        io.in(`${data.roomName}`).emit(EVENTS.EVERYONE_ANSWERED(), { event: EVENTS.EVERYONE_ANSWERED(), users: room.users })
+        if (room.question_counter < 1) {
+            room.allow_enter = false;
+            await room.save();
+            io.in(`${data.roomName}`).emit(EVENTS.TOURNAMENT_FINISHED(), { event: EVENTS.TOURNAMENT_FINISHED(), users: room.users });
+            if (data && data.match) {
+                const user1 = await Users.findById(room.users[0]._id);
+                const user2 = await Users.findById(room.users[1]._id);
+                user1.score = user1.score + room.users[0].score;
+                user2.score = user2.score + room.users[1].score;
+                await user1.save();
+                await user2.save();
+            }
+            return;
+        }else{
+            let counter = room.question_counter - 1;
+            room.question_counter = counter;
+            const question = await generateNewRandomQuestion();
+            room.current_question = question;
+            await room.save();
+            io.in(`${data.roomName}`).emit(EVENTS.EVERYONE_ANSWERED(), { event: EVENTS.EVERYONE_ANSWERED(), users: room.users, counter })
+        }
+    }catch(e){
+        console.log(e)
     }
+   
    
 }
 
 
 export const checkMatchQuestion = async (socket: Socket, data: EmittedLoggedInData) => {
-    const room = await Room.findOne({ room_id: data.roomName });
+
+    try{
+        const room = await Room.findOne({ room_id: data.roomName });
     if (!room) {
         return socket.emit(`${EVENTS.ROOM_DONT_EXIST()}`, {
             event: `${EVENTS.ROOM_DONT_EXIST()}`,
@@ -136,52 +144,61 @@ export const checkMatchQuestion = async (socket: Socket, data: EmittedLoggedInDa
         socket.emit(EVENTS.SELECTED_QUESTION_LETTER(), { correct: data.letter === question.correct_letter, event: EVENTS.SELECTED_QUESTION_LETTER(), users: room.users })
         io.in(`${data.roomName}`).emit(EVENTS.UPDATE_WAITING_STATUS(), { event: EVENTS.UPDATE_WAITING_STATUS(), users: users })
     }
+    }catch(e){
+        console.log(e)
+    }
+    
 
 }
 
 
 
 export const checkDBTournamentQuestion = async (socket: Socket, data: EmittedLoggedInData) => {
-    if(data.match){
-        return checkMatchQuestion(socket, data)
-    }
-    const room = await Room.findOne({ room_id: data.roomName });
-    if (!room) {
-        return socket.emit(`${EVENTS.ROOM_DONT_EXIST()}`, {
-            event: `${EVENTS.ROOM_DONT_EXIST()}`,
-            fn: 'checkDBTournamentQuestion'
-        });
-    }
-    const question = room.current_question;
-    const users = JSON.parse(JSON.stringify(room.users));
-    users.forEach((user: any) => {
-        if (user.id === data.user_id) {
-            user.answered = true;
-            if (data.letter === question.correct_letter) {
-                user.score++;
-            }
+    try{
+        if(data.match){
+            return checkMatchQuestion(socket, data)
         }
-    });
-    const io = getIO();
-    room.users = users;
-    const everyone_answered = room.users.every((user: any) => user.answered === true);
-    if (everyone_answered) {
-        const resetUsers = JSON.parse(JSON.stringify(room.users));
-        resetUsers.forEach((user: any) => {
-            user.answered = false;
+        const room = await Room.findOne({ room_id: data.roomName });
+        if (!room) {
+            return socket.emit(`${EVENTS.ROOM_DONT_EXIST()}`, {
+                event: `${EVENTS.ROOM_DONT_EXIST()}`,
+                fn: 'checkDBTournamentQuestion'
+            });
+        }
+        const question = room.current_question;
+        const users = JSON.parse(JSON.stringify(room.users));
+        users.forEach((user: any) => {
+            if (user._id === data.user_id) {
+                user.answered = true;
+                if (data.letter === question.correct_letter) {
+                    user.score++;
+                }
+            }
         });
-        room.users = resetUsers;
-        room.total_questions = room.total_questions + 1;
-        await room.save();
-        io.in(`${data.roomName}`).emit(EVENTS.UPDATE_WAITING_STATUS(), { event: EVENTS.UPDATE_WAITING_STATUS(), users: room.users })
-        socket.emit(EVENTS.SELECTED_QUESTION_LETTER(), { correct: data.letter === question.correct_letter, event: EVENTS.SELECTED_QUESTION_LETTER(), users: room.users })
-        startDBTournamentQuestion(io, data);
-
-    } else {
-        await room.save();
-        socket.emit(EVENTS.SELECTED_QUESTION_LETTER(), { correct: data.letter === question.correct_letter, event: EVENTS.SELECTED_QUESTION_LETTER(), users: room.users })
-        io.in(`${data.roomName}`).emit(EVENTS.UPDATE_WAITING_STATUS(), { event: EVENTS.UPDATE_WAITING_STATUS(), users: room.users })
+        const io = getIO();
+        room.users = users;
+        const everyone_answered = room.users.every((user: any) => user.answered === true);
+        if (everyone_answered) {
+            const resetUsers = JSON.parse(JSON.stringify(room.users));
+            resetUsers.forEach((user: any) => {
+                user.answered = false;
+            });
+            room.users = resetUsers;
+            room.total_questions = room.total_questions + 1;
+            await room.save();
+            io.in(`${data.roomName}`).emit(EVENTS.UPDATE_WAITING_STATUS(), { event: EVENTS.UPDATE_WAITING_STATUS(), users: room.users })
+            socket.emit(EVENTS.SELECTED_QUESTION_LETTER(), { correct: data.letter === question.correct_letter, event: EVENTS.SELECTED_QUESTION_LETTER(), users: room.users })
+            startDBTournamentQuestion(io, data);
+    
+        } else {
+            await room.save();
+            socket.emit(EVENTS.SELECTED_QUESTION_LETTER(), { correct: data.letter === question.correct_letter, event: EVENTS.SELECTED_QUESTION_LETTER(), users: room.users })
+            io.in(`${data.roomName}`).emit(EVENTS.UPDATE_WAITING_STATUS(), { event: EVENTS.UPDATE_WAITING_STATUS(), users: room.users })
+        }
+    }catch(e){
+        console.log(e)
     }
+    
 
 }
 

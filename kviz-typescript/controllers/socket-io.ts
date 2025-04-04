@@ -22,10 +22,9 @@ const saveDBSocket = async (socket: Socket, data: EmittedLoggedInData) =>{
         user.online = true;
         socket.join(user._id.toString());
         await user.save();
-        console.log('USER CONNECTED')
         return IO.emit(EVENTS.USER_CONNECTED(), { event: EVENTS.USER_CONNECTED(), socket_id: socket.id, user_id: data.user_id })
     }else{
-        console.log('socket not saved')
+        console.log('')
     }
 }
 
@@ -64,7 +63,6 @@ export const setupListeners = () =>{
     COUNTER.setupCounter();
     DB.init();
 
-    console.log('setup listeners')
 
 
 

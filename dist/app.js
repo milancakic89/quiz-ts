@@ -25,7 +25,13 @@ server.set('views', './dist/views');
 server.set('view engine', 'ejs');
 server.use(express.urlencoded({ extended: false }));
 server.use(express.json());
-server.use(express.static(path.join(__dirname, 'public')));
+server.use(express.static('dist/quiz-angular/browser', {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    }
+}));
 process.on('uncaughtException', (error, origin) => {
     const err = new Errors({
         message: error,
@@ -39,6 +45,9 @@ process.on('unhandledRejection', (reason, promise) => {
         caused_by: promise
     });
     err.save();
+});
+server.get('/quiz', (req, res) => {
+    res.sendFile(path.join(__dirname, 'quiz-angular', 'browser', 'index.html'));
 });
 server.get('/activate/:token', USER.activateUser);
 server.get('/errors', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

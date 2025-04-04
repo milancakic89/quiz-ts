@@ -45,6 +45,7 @@ export const createMatchRoom = async (room: string, users: any[]) => {
 
     })
     const result = await newRoom.save();
+
     if (result) {
         response.success = true;
     }
@@ -52,29 +53,38 @@ export const createMatchRoom = async (room: string, users: any[]) => {
 }
 
 export const createDBRoom = async (socket: Socket, room: string, userData: EmittedLoggedInData) => {
-    const response = { success: false }
-    const user = await Users.findOne({ _id: userData.user_id });
-    const startsAt = userData.startsAt || 0;
-    const newRoom = new Room({
-        room_id: room,
-        users: [],
-        allow_enter: true,
-        total_questions: 0,
-        startsAt: startsAt,
-        created_by: userData.user_id
-    })
-    const result = await newRoom.save();
-    if (result) {
-        user.room = room;
-        user.socket = socket.id;
-        await user.save();
-        result.success = true;
-        socket.emit(EVENTS.ROOM_CREATED(), { success: true, created_by: newRoom.created_by, event: `${EVENTS.ROOM_CREATED()}`, roomName: room })
+    
+    try{
+        const response = { success: false }
+        const _user = userData.data || userData;
+        const user = await Users.findOne({ _id: _user._id });
+        const startsAt = userData.startsAt || 0;
+        const newRoom = new Room({
+            room_id: room,
+            users: [],
+            allow_enter: true,
+            total_questions: 0,
+            startsAt: startsAt,
+            created_by: userData.data._id
+        })
+        const result = await newRoom.save();
+        if (result) {
+            user.room = room;
+            user.socket = socket.id;
+            await user.save();
+            result.success = true;
+            socket.emit(EVENTS.ROOM_CREATED(), { success: true, created_by: newRoom.created_by, event: `${EVENTS.ROOM_CREATED()}`, roomName: room })
+        }
+        return response;
+    }catch(e){
+        console.log(e)
     }
-    return response;
+
 }
 
 export const joinDBRoom = async (socket: Socket, userAndRoom: EmittedLoggedInData) => {
+    try{
+
     if (userAndRoom.roomName === '1on1') {
         return joinOneOnOne(socket, userAndRoom)
     }
@@ -96,18 +106,18 @@ export const joinDBRoom = async (socket: Socket, userAndRoom: EmittedLoggedInDat
         await user.save();
         if (!haveUser) {
             room.users.push({
-                name: userAndRoom.name,
-                id: userAndRoom.user_id,
+                _id: userAndRoom.user_id,
                 score: 0,
                 answered: false,
-                avatar: userAndRoom.avatar,
+                name: user.name,
+                avatar_url: user.avatar_url,
             });
         }
         const result = await room.save();
         if (result) {
             result.success = true;
             socket.join(`${userAndRoom.roomName}`);
-            io.in(`${userAndRoom.roomName}`).emit(EVENTS.JOINED_ROOM(), { users: room.users, created_by: room.created_by, event: EVENTS.JOINED_ROOM(), socked: socket.id })
+            io.in(`${userAndRoom.roomName}`).emit(EVENTS.JOINED_ROOM(), { users: room.users, created_by: room.created_by, event: EVENTS.JOINED_ROOM(), socked: socket.id, roomName: userAndRoom.roomName })
         }
     } else {
         socket.emit(EVENTS.ROOM_DONT_EXIST(), {
@@ -116,6 +126,10 @@ export const joinDBRoom = async (socket: Socket, userAndRoom: EmittedLoggedInDat
         });
     }
     return response;
+    }catch(e){
+        console.log(e)
+    }
+
 }
 
 
@@ -167,7 +181,7 @@ export const joinOneOnOneDBRoom = async (socket: Socket, data: EmittedLoggedInDa
 export const joinOneOnOne = async (socket: Socket, userAndRoom: EmittedLoggedInData) => {
     const QUEUE = TOURNAMENT.getQueue();
     const user = { 
-        _id: userAndRoom.user_id,
+        _id: userAndRoom.user_id || userAndRoom._id,
         name: userAndRoom.name,
         socket: socket.id,
         mainScore: userAndRoom.score,
