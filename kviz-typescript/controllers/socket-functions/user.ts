@@ -82,18 +82,24 @@ export const updateScore = async (socket: Socket, data: EmittedLoggedInData) =>{
 }
 
 export const updateSettings = async (socket: Socket, data: EmittedLoggedInData) =>{
-    const name = data.settings.name;
-    const border = data.settings.avatar_border || '';
-    const avatar = data.settings.image || 'https://firebasestorage.googleapis.com/v0/b/kviz-live.appspot.com/o/1642193033985png-transparent-computer-icons-avatar-user-profile-avatar-heroes-rectangle-black.png?alt=media';
-    const userDoc = await User.findById(data.data._id);
-    if(userDoc){
-        userDoc.name = name;
-        userDoc.avatar_url = avatar;
-        userDoc.avatar_border = border;
-        userDoc.save();
-        return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc})
+    try{
+        const name = data.settings.name;
+        const border = data.settings.avatar_border || '';
+        const avatar = data.settings.image || 'https://firebasestorage.googleapis.com/v0/b/kviz-live.appspot.com/o/1642193033985png-transparent-computer-icons-avatar-user-profile-avatar-heroes-rectangle-black.png?alt=media';
+        console.log(avatar)
+        const userDoc = await User.findById(data.data._id);
+        if(userDoc){
+            userDoc.name = name;
+            userDoc.avatar_url = avatar;
+            userDoc.avatar_border = border;
+            userDoc.save();
+            return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc})
+        }
+        return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: false, data: null})
+    }catch(e){
+        console.log(e)
     }
-    return socket.emit(EVENTS.UPDATE_SETTINGS(), {event: EVENTS.UPDATE_SETTINGS(), success: false, data: null})
+
  }
 
  export const removeNotification = async (socket: Socket, data: EmittedLoggedInData) =>{

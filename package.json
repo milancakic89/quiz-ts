@@ -5,9 +5,9 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "nodemon dist/app.js",
-    "builded": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 node dist/app.js",
-    "local": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "builded": "node dist/app.js",
+    "local": "node app.js",
+    "test": "node dist/app.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,8 @@
     "connect-multiparty": "^2.2.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "dot-env": "^0.0.1",
+    "dotenv": "^16.4.7",
     "ejs": "^3.1.7",
     "express": "^4.17.3",
     "express-session": "^1.17.2",

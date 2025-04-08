@@ -89,18 +89,24 @@ const updateScore = (socket, data) => __awaiter(void 0, void 0, void 0, function
 });
 exports.updateScore = updateScore;
 const updateSettings = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
-    const name = data.settings.name;
-    const border = data.settings.avatar_border || '';
-    const avatar = data.settings.image || 'https://firebasestorage.googleapis.com/v0/b/kviz-live.appspot.com/o/1642193033985png-transparent-computer-icons-avatar-user-profile-avatar-heroes-rectangle-black.png?alt=media';
-    const userDoc = yield User.findById(data.data._id);
-    if (userDoc) {
-        userDoc.name = name;
-        userDoc.avatar_url = avatar;
-        userDoc.avatar_border = border;
-        userDoc.save();
-        return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc });
+    try {
+        const name = data.settings.name;
+        const border = data.settings.avatar_border || '';
+        const avatar = data.settings.image || 'https://firebasestorage.googleapis.com/v0/b/kviz-live.appspot.com/o/1642193033985png-transparent-computer-icons-avatar-user-profile-avatar-heroes-rectangle-black.png?alt=media';
+        console.log(avatar);
+        const userDoc = yield User.findById(data.data._id);
+        if (userDoc) {
+            userDoc.name = name;
+            userDoc.avatar_url = avatar;
+            userDoc.avatar_border = border;
+            userDoc.save();
+            return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: true, data: userDoc });
+        }
+        return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: false, data: null });
     }
-    return socket.emit(EVENTS.UPDATE_SETTINGS(), { event: EVENTS.UPDATE_SETTINGS(), success: false, data: null });
+    catch (e) {
+        console.log(e);
+    }
 });
 exports.updateSettings = updateSettings;
 const removeNotification = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {

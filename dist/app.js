@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const USER = require('./controllers/socket-functions/auth');
@@ -61,6 +62,7 @@ server.use('', (req, res, next) => {
         message: '404 Page not found'
     });
 });
+console.log(process.env.PORT);
 mongoose.connect(process.env.MONGO).then(() => {
     const app = server.listen(port);
     const io = require('./socket').init(app);

@@ -341,6 +341,14 @@ export const NEW_FRIEND_REQUEST = () => 'NEW_FRIEND_REQUEST';
 */
 export const ACCOUNT_NOT_ACTIVATED = () => 'ACCOUNT_NOT_ACTIVATED';
 
+
+/**
+* @description Emits account activated true or false
+* @common_data_to_send {event: 'ACCOUNT_ACTIVATED', data: null}
+* @returns EVENT STRING
+*/
+export const ACCOUNT_ACTIVATED = () => 'ACCOUNT_ACTIVATED';
+
 /**
 * @description Emits register requests
 * @common_data_to_send {event: 'REGISTER', data: boolean}

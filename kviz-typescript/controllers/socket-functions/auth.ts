@@ -104,6 +104,32 @@ export const autoLogin = async (socket: Socket, data: EmittedLoggedInData) => {
     return socket.emit(EVENTS.AUTOLOGIN(), { event: EVENTS.AUTOLOGIN(), data: user })
 }
 
+export const activateEmail = async (socket: Socket, data: EmittedLoggedInData) => {
+
+    const email: string = data.email;
+    const token: string = data.activation_token;
+    console.log(email, token)
+
+    const user: UserType = await User.findOne({ email: email });
+    console.log(user)
+    try{
+        if(user && user.activation_token === token){
+            user.account_activated = true;
+            user.activation_token = '';
+            await user.save();
+        }
+
+        else{
+            socket.emit(EVENTS.ACCOUNT_ACTIVATED(), { event: EVENTS.ACCOUNT_ACTIVATED(), data: false })
+            return;
+        }
+        return socket.emit(EVENTS.ACCOUNT_ACTIVATED(), { event: EVENTS.ACCOUNT_ACTIVATED(), data: true })
+    }catch(e){
+        console.log(e)
+    }
+
+}
+
 export const facebookLogin = async (req: any, res: any, next: any) => {
     const id: string = req.body.id;
     const name: string = req.body.name;

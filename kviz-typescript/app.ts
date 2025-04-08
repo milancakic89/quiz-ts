@@ -1,3 +1,4 @@
+require('dotenv').config()
 const path = require('path');
 const express = require('express');
 const USER = require('./controllers/socket-functions/auth');
@@ -60,6 +61,8 @@ server.use('', (req: any,res: any, next: any)=>{
             message: '404 Page not found'
         })
 });
+
+console.log(process.env.PORT)
 
 mongoose.connect(process.env.MONGO).then(() =>{
     const app = server.listen(port);

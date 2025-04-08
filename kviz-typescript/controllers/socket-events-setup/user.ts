@@ -1,5 +1,5 @@
 import { Achievements, Auth, Questions, UserFn } from "../../intrfaces/socket-functions-types";
-import { EmittedData, Socket } from "../../intrfaces/types";
+import { EmittedData, EmittedLoggedInData, Socket } from "../../intrfaces/types";
 import { Middleware } from "../../midleware/types";
 
 export { }
@@ -44,6 +44,10 @@ export const setup = () => {
 
         socket.on(EVENTS.REDUCE_LIVES(), async (data: EmittedData) => {
             midleware.socketMiddleware(socket, data, QUESTIONS.reduceLives)
+        });
+
+        socket.on(EVENTS.ACCOUNT_ACTIVATED(), async (data: EmittedLoggedInData) => {
+            AUTH.activateEmail(socket, data)
         })
 
         socket.on(EVENTS.GET_ACHIEVEMENTS(), async (data: EmittedData) => {

@@ -44,6 +44,9 @@ const setup = () => {
         socket.on(EVENTS.REDUCE_LIVES(), (data) => __awaiter(void 0, void 0, void 0, function* () {
             midleware.socketMiddleware(socket, data, QUESTIONS.reduceLives);
         }));
+        socket.on(EVENTS.ACCOUNT_ACTIVATED(), (data) => __awaiter(void 0, void 0, void 0, function* () {
+            AUTH.activateEmail(socket, data);
+        }));
         socket.on(EVENTS.GET_ACHIEVEMENTS(), (data) => __awaiter(void 0, void 0, void 0, function* () {
             midleware.socketMiddleware(socket, data, ACHIEVEMENTS.getAchievements);
         }));

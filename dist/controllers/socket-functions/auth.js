@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPasswordConfirmation = exports.resetPassword = exports.activateUser = exports.takeDailyPrice = exports.refresh = exports.facebookLogin = exports.autoLogin = exports.login = exports.signUp = exports.randomValue = void 0;
+exports.resetPasswordConfirmation = exports.resetPassword = exports.activateUser = exports.takeDailyPrice = exports.refresh = exports.facebookLogin = exports.activateEmail = exports.autoLogin = exports.login = exports.signUp = exports.randomValue = void 0;
 const Achievements = require('../../db_models/achievement');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -107,6 +107,29 @@ const autoLogin = (socket, data) => __awaiter(void 0, void 0, void 0, function* 
     return socket.emit(EVENTS.AUTOLOGIN(), { event: EVENTS.AUTOLOGIN(), data: user });
 });
 exports.autoLogin = autoLogin;
+const activateEmail = (socket, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = data.email;
+    const token = data.activation_token;
+    console.log(email, token);
+    const user = yield User.findOne({ email: email });
+    console.log(user);
+    try {
+        if (user && user.activation_token === token) {
+            user.account_activated = true;
+            user.activation_token = '';
+            yield user.save();
+        }
+        else {
+            socket.emit(EVENTS.ACCOUNT_ACTIVATED(), { event: EVENTS.ACCOUNT_ACTIVATED(), data: false });
+            return;
+        }
+        return socket.emit(EVENTS.ACCOUNT_ACTIVATED(), { event: EVENTS.ACCOUNT_ACTIVATED(), data: true });
+    }
+    catch (e) {
+        console.log(e);
+    }
+});
+exports.activateEmail = activateEmail;
 const facebookLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.body.id;
     const name = req.body.name;

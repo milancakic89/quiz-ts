@@ -18,6 +18,7 @@ export interface Auth{
     sendEmail: (socket: Socket, io: any, user: UserType, html: any) => {};
     resetPassword: (socket: Socket, data: EmittedData) => {};
     resetPasswordConfirmation : (socket: Socket, data: EmittedLoggedInData) => {};
+    activateEmail : (socket: Socket, data: EmittedLoggedInData) => {};
     
 }
 
