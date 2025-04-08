@@ -5,8 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "nodemon dist/app.js",
-    "builded": "node dist/app.js",
-    "local": "node app.js",
+    "builded": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 node dist/app.js",
+    "local": "cross-env EMAIL_PASSWORD=ndoyisihwywumuio MONGO=mongodb+srv://milancakic:Masterdamus12@quiz-cluster.vopbe.mongodb.net/quiz SIGNING_SECRET=xDfaskdhJlLklJHojhkjhgjtkhKJHkjhkhKgjfgjkjhKhkhK PORT=4000 node app.js",
     "test": "node dist/app.js"
   },
   "repository": {
